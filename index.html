@@ -1,8 +1,21 @@
 <!DOCTYPE>
 <html>
     <body>
+        <div id="page-headings">
         <h1>TO-DO</h1>
+        </div>
+        <input id="todo-filter" type="text" placeholder="filter">
+        <label>
+            <input type="checkbox" id="hide-completed-checkbox"> Hide Completed
+        </label>
+        <div id="todos"></div>
+        <form id="new-todo-form">
+            <input id="new-todo-text" type="text" placeholder="new todo" name="newTodoText">
+            <button>Add Todo</button>
+        </form>
+
     </body>
+    <script src="./todo_functions.js"></script>
     <script src="./todo_app.js"></script>
 </html>
 

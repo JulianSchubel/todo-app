@@ -1,36 +1,46 @@
-const notes = [
-    {
-        "text": "install unixODBC in alpine linux",
-        "completed": true
-    },
-    {
-        "text": "Build the DDE docker image with unixODBC and informix and oracle drivers",
-        "completed": false
-    },
-    {
-        "text":"Write IAC code",
-        "completed": false
-    }
-]
 
-/* count the number of incomplete todo items */
-todo_count = 0
+const localStorageKey = "todos";
 
-notes.forEach( function(element) {
-    if(!element.completed) {
-        ++todo_count;
-    }
+let todos = getSavedTodos();
+
+// const is top level const
+const filters = {
+    "searchText": "",
+    "hideCompleted": false
+};
+
+renderNotes(todos, filters);
+
+// todo filter event handler
+document.querySelector("#todo-filter").addEventListener("input", function(event){
+    //console.log(event.target.value);
+    filters.searchText = event.target.value;
+    renderNotes(todos, filters);
 });
 
-/* add a summary message indicating the remaining todo items */
-todos_summary = document.createElement('h2');
-todos_summary.textContent = `You have ${todo_count} todo items left:`;
-const body = document.querySelector("body");
-body.appendChild(todos_summary);
+// new todo form submit handler
+document.querySelector("#new-todo-form").addEventListener("submit", function(event){
+    // cancel default submit behaviour
+    event.preventDefault();
 
-/* append the text of each todo item as a paragraph to the body of the DOM */
-notes.forEach( function (element) {
-    new_paragraph = document.createElement('p');
-    new_paragraph.textContent = element.text;
-    body.appendChild(new_paragraph);
+    let todo_text = event.target.elements.newTodoText.value;
+    event.target.elements.newTodoText.value = "";
+
+    if(todo_text === "" || todo_text === null) {
+        todo_text = "Empty Todo";
+    }
+
+    todos.push({ 
+        "text": todo_text,
+        "completed": false
+    });
+    
+    saveTodos(todos)
+    renderNotes(todos, filters);
+});
+
+// add checkbox handler
+document.querySelector("#hide-completed-checkbox").addEventListener("change", function(event){
+    filters.hideCompleted = event.target.checked;
+    renderNotes(todos,filters);
 });
