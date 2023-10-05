@@ -1,11 +1,39 @@
-
-// generateTodoDOM: Generate the DOM structure for a todo
+// generateTodoDOM: Generate the DOM structure for a todo 
 const generateTodoDOM = function(todo) {
-    let newElement = document.createElement('p');
-    newElement.className = "todo";
-    newElement.textContent = todo.text;
-    return newElement;
-} 
+    const todoElement = document.createElement('div');
+    // span indicates an inline-level element
+    const textElement = document.createElement('span');
+    const buttonElement = document.createElement('button');
+    const checkboxElement = document.createElement('input');
+
+    // setup remove todo button
+    buttonElement.textContent = 'x';
+    buttonElement.id = todo.id;
+    buttonElement.addEventListener("click", function(event) {
+        removeTodo(todo.id);
+        saveTodos(todos, localStorageKey);
+        renderTodos(todos, filters);
+    })
+
+    // setup todo checkbox
+    checkboxElement.type = "checkbox";
+    checkboxElement.checked = todo.completed;
+    checkboxElement.addEventListener("change", function(event) {
+        updateTodoStatus(todo.id);
+        saveTodos(todos, localStorageKey);
+        renderTodos(todos, filters);
+    });
+
+    // setup todo title text
+    todoElement.className = "todo";
+    todoElement.id = todo.id;
+    textElement.textContent = (todo.text.length === 0) ? "Empty Todo" : todo.text;
+    
+    todoElement.appendChild(checkboxElement);
+    todoElement.appendChild(textElement);
+    todoElement.appendChild(buttonElement);
+    return todoElement;
+}
 
 // getSummaryDOM: returns a heading (h2) that contains a summary message of the number of incomplete todos
 const getSummaryDOM = function(nTodos) {
@@ -15,24 +43,24 @@ const getSummaryDOM = function(nTodos) {
     return summary;
 }
 
-// renderNotes: Render notes to the DOM
-const renderNotes = function(notes, filter) {
-    //clear the notes content division
+// renderTodos: Render todos to the DOM
+const renderTodos = function(todos, filters) {
+    //clear the todos content division
     document.querySelector("#todos").innerHTML = "";
 
-    //filter the notes array
-    const filtered_notes = notes.filter(function(element){
+    //filter the todos array
+    const filtered_todos = todos.filter(function(element){
         const searchTextMatch = (element.text != null) ? 
             element
                 .text
                 .toLowerCase()
-                .includes(filter.searchText.toLowerCase()) : false;
-        const hideCompletedMatch = !filter.hideCompleted || !element.completed;
+                .includes(filters.searchText.toLowerCase()) : false;
+        const hideCompletedMatch = !filters.hideCompleted || !element.completed;
         return searchTextMatch && hideCompletedMatch;
     });
 
     // count the number of incomplete todo items
-    let incompleteTodoCount = filtered_notes.filter(function(element){
+    let incompleteTodoCount = filtered_todos.filter(function(element){
         return !element.completed;
     }).length;
 
@@ -44,7 +72,7 @@ const renderNotes = function(notes, filter) {
     body.appendChild(getSummaryDOM(incompleteTodoCount));
 
     //create new elements and render them to the DOM
-    filtered_notes.forEach(function(element) {
+    filtered_todos.forEach(function(element) {
         document
             .querySelector("#todos")
             .appendChild(generateTodoDOM(element));
@@ -53,18 +81,37 @@ const renderNotes = function(notes, filter) {
 
 // getSavedTodos: Read application todos from local storage
 const getSavedTodos = function(localStorageKey) {
-    const localStorageNotes = JSON.parse(localStorage.getItem(localStorageKey));
-    if(localStorageNotes != null) {
-        return localStorageNotes;
+    const localStorageTodos = JSON.parse(localStorage.getItem(localStorageKey));
+    if(localStorageTodos != null) {
+        return localStorageTodos;
     }
     return [];
 }
 
 // saveTodos: Write application todos to local storage
-const saveTodos = function(todosArray, localStorageKey) {
-    localStorage
-        .setItem(
-            localStorageKey, 
-            JSON.stringify(todosArray)
-        );
+const saveTodos = function(todosArray, localStorageKeyl) {
+    localStorage.setItem(localStorageKey, JSON.stringify(todosArray));
+}
+
+/* removeTodo: remove a todo based on its ID */
+const removeTodo = function(todoId) {
+    console.log("remove todo");
+    const todoIndex = todos.findIndex( function(element) {
+        return element.id === todoId;
+    });
+
+    /* remove the todo */
+    if(todoIndex > -1) {
+        todos.splice(todoIndex, 1);
+    }
+    return;
+}
+
+/* updateTodoStatus: change the status of a todo if the checkbox is checked */
+const updateTodoStatus = function(todoId) {
+        const todo = todos.find( function(element) {
+            return element.id === todoId;
+        });
+
+        todo.completed = !todo.completed;
 }
