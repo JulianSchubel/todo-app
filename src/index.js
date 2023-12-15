@@ -1,18 +1,24 @@
 "use strict"
 
-import { v4 as uuidv4 } from "uuid";
 import { 
-    renderTodos,
-    updateFilters,
     createTodo
-} from "./todo_functions";
+} from "./todos";
+
+import {
+    setFilters
+} from "./filters";
+
+import {
+    renderTodos
+} from "./views";
 
 renderTodos();
 
 // todo filter event handler
 document.querySelector("#todo-filter").addEventListener("input", (event) => {
     //console.log(event.target.value);
-    updateFilters({searchText: event.target.value});
+    setFilters({searchText: event.target.value});
+    renderTodos();
 });
 
 // new todo form submission handler
@@ -26,5 +32,6 @@ document.querySelector("#new-todo-form").addEventListener("submit", (event) => {
 
 // add checkbox handler
 document.querySelector("#hide-completed-checkbox").addEventListener("change", (event) => {
-    updateFilters({hideCompleted: event.target.checked});
+    setFilters({hideCompleted: event.target.checked});
+    renderTodos();
 });

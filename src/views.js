@@ -1,15 +1,15 @@
 "use strict"
 
+import {
+    saveTodos,
+    getTodos,
+    toggleTodo,
+    removeTodo,
+} from "./todos";
 
-import { v4 as uuidv4 } from "uuid";
-// const is top level const
-const filters = {
-    "searchText": "",
-    "hideCompleted": false
-};
-
-let todos = []
-const localStorageKey = "todos";
+import {
+    getFilters
+} from "./filters"
 
 // generateTodoDOM: Generate the DOM structure for a todo 
 const generateTodoDOM = (todo) => {
@@ -24,18 +24,18 @@ const generateTodoDOM = (todo) => {
     removeButton.textContent = 'remove';
     removeButton.id = todo.id;
     removeButton.classList.add("button", "button--text");
-    removeButton.addEventListener("click", (event) => {
+    removeButton.addEventListener("click", () => {
         removeTodo(todo.id);
-        saveTodos(todos, localStorageKey);
+        saveTodos();
         renderTodos();
     })
 
     // setup todo checkbox
     checkboxElement.type = "checkbox";
     checkboxElement.checked = todo.completed;
-    checkboxElement.addEventListener("change", (event) => {
-        updateTodoStatus(todo.id);
-        saveTodos(todos, localStorageKey);
+    checkboxElement.addEventListener("change", () => {
+        toggleTodo(todo.id);
+        saveTodos();
         renderTodos();
     });
 
@@ -67,6 +67,10 @@ const getSummaryDOM = (nTodos) => {
 
 // renderTodos: Render todos to the DOM
 const renderTodos = () => {
+
+    let todos = getTodos();
+    let filters = getFilters();
+
     //clear the todos content division
     const todoContainer = document.querySelector("#todos")
     todoContainer.innerHTML = "";
@@ -104,76 +108,6 @@ const renderTodos = () => {
     }
 }
 
-// getSavedTodos: Read application todos from local storage
-const getSavedTodos = () => {
-    const localStorageTodos = JSON.parse(localStorage.getItem(localStorageKey));
-    try {
-        return localStorageTodos ? localStorageTodos : [];
-    } catch(error) {
-        return [];
-    }
-}
-
-
-// saveTodos: Write application todos to local storage
-const saveTodos = () => {
-    localStorage.setItem(localStorageKey, JSON.stringify(todos));
-}
-
-/* removeTodo: remove a todo based on its ID */
-const removeTodo = (todoId) => {
-    console.log("remove todo");
-    const todoIndex = todos.findIndex( (element) => element.id === todoId);
-
-    /* remove the todo */
-    if(todoIndex > -1) {
-        todos.splice(todoIndex, 1);
-    }
-    return;
-}
-
-/* updateTodoStatus: change the status of a todo if the checkbox is checked */
-const updateTodoStatus = (todoId) => {
-        const todo = todos.find( (element) =>  element.id === todoId);
-        if(todo) {
-            todo.completed = !todo.completed;
-        }
-}
-
-const createTodo = (todo_text) => {
-    if(todo_text.length > 0) {
-        if(todo_text === "" || todo_text === null) {
-            todo_text = "Empty Todo";
-        }
-
-        todos.push({ 
-            id: uuidv4(),
-            text: todo_text,
-            completed: false
-        });
-        
-        saveTodos();
-        renderTodos();
-    }
-}
-
-const updateFilters = (updates) => {
-    if(typeof updates.hideCompleted === 'boolean') {
-        filters.hideCompleted = updates.hideCompleted;
-    }
-
-    if(typeof updates.searchText === 'string') {
-        filters.searchText = updates.searchText;
-    }
-
-    renderTodos();
-}
-
-todos = getSavedTodos();
 export {
-    getSavedTodos,
-    saveTodos,
     renderTodos,
-    createTodo,
-    updateFilters,
 }
