@@ -87,7 +87,7 @@ const renderTodos = () => {
     });
 
     // count the number of incomplete todo items
-    let incompleteTodoCount = filtered_todos.filter( (element) => !element.completed).length;
+    let incompleteTodoCount = filtered_todos.filter( (element) => !filters.hideCompleted || !element.completed).length;
 
     //debugger: add a breakpoint here - can interrogate variable values in the browser debugger console
     //debugger 
